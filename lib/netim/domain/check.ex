@@ -22,9 +22,9 @@ defmodule Netim.Domain.Check do
 
   @primary_key false
   typed_embedded_schema do
-    field :domain, :string, primary_key: true
-    field :result, Ecto.Enum, values: @domain_check_results
-    field :reason, Ecto.Enum, values: @domain_check_reasons
+    field(:domain, :string, primary_key: true)
+    field(:result, Ecto.Enum, values: @domain_check_results)
+    field(:reason, Ecto.Enum, values: @domain_check_reasons)
   end
 
   def cast(data) do

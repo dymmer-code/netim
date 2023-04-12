@@ -27,22 +27,26 @@ defmodule Netim.Case do
   end
 
   def response(conn, name, data \\ []) do
-    Plug.Conn.resp(conn, 200, envelope(name ,data))
+    Plug.Conn.resp(conn, 200, envelope(name, data))
   end
 
   def response(conn, :error, code, string) do
-    Plug.Conn.resp(conn, 500, fault(code ,string))
+    Plug.Conn.resp(conn, 500, fault(code, string))
   end
 
   def fault(code, string) do
-    Xmlel.new("soap-env:Envelope", %{"xmlns:soap-env" => "http://schemas.xmlsoap.org/soap/envelope/"}, [
-      Xmlel.new("soap-env:Body", %{}, [
-        Xmlel.new("soap-env:Fault", %{}, [
-          Xmlel.new("faultcode", %{}, [code]),
-          Xmlel.new("faultstring", %{}, ["#{code} : #{string}"])
+    Xmlel.new(
+      "soap-env:Envelope",
+      %{"xmlns:soap-env" => "http://schemas.xmlsoap.org/soap/envelope/"},
+      [
+        Xmlel.new("soap-env:Body", %{}, [
+          Xmlel.new("soap-env:Fault", %{}, [
+            Xmlel.new("faultcode", %{}, [code]),
+            Xmlel.new("faultstring", %{}, ["#{code} : #{string}"])
+          ])
         ])
-      ])
-    ])
+      ]
+    )
     |> to_string()
   end
 end

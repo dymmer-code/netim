@@ -33,7 +33,8 @@ defmodule Netim.Session do
     |> Netim.base([{"IDSession", id_session}])
     |> Netim.request()
     |> case do
-      {:ok, %{}} -> :ok
+      {:ok, %{}} ->
+        :ok
 
       error ->
         Logger.error("cannot close session: #{inspect(error)}")
@@ -69,7 +70,8 @@ defmodule Netim.Session do
     |> Netim.base([id_session, type, value])
     |> Netim.request()
     |> case do
-      {:ok, %{}} -> :ok
+      {:ok, %{}} ->
+        :ok
 
       error ->
         Logger.error("cannot set #{type} preference: #{inspect(error)}")

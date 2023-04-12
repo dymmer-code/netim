@@ -3,9 +3,9 @@ defmodule Netim.Domain.List do
 
   @primary_key false
   typed_embedded_schema do
-    field :domain, :string, primary_key: true
-    field :created_at, :date, source: :dateCreate
-    field :expires_at, :date, source: :dateExpiration
+    field(:domain, :string, primary_key: true)
+    field(:created_at, :date, source: :dateCreate)
+    field(:expires_at, :date, source: :dateExpiration)
   end
 
   def cast(data) do

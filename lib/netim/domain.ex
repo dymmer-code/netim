@@ -21,25 +21,25 @@ defmodule Netim.Domain do
 
   @primary_key false
   typed_embedded_schema do
-    field :domain, :string, primary_key: true
-    field :created_at, :date, source: :dateCreate
-    field :expires_at, :date, source: :dateExpiration
-    field :min_renew_at, :date, source: :dateMinRenew
-    field :max_renew_at, :date, source: :dateMaxRenew
-    field :max_restore_at, :date, source: :dateMaxRestore
-    field :status, Ecto.Enum, values: @domain_statuses
-    field :contact_owner_id, :string, source: :idOwner
-    field :contact_admin_id, :string, source: :idAdmin
-    field :contact_tech_id, :string, source: :idTech
-    field :contact_billing_id, :string, source: :idBilling
-    field :lock?, Ecto.Enum, values: [true: 1, false: 0], source: :domainIsLock
-    field :whois_privacy?, Ecto.Enum, values: [true: 1, false: 0], source: :whoisPrivacy
-    field :auto_renew?, Ecto.Enum, values: [true: 1, false: 0], source: :autoRenew
-    field :ns, {:array, :string}
-    field :auth_id, :string, source: :authID
-    field :signed?, Ecto.Enum, values: [true: 1, false: 0], source: :IsSigned
-    field :dns4service?, Ecto.Enum, values: [true: 1, false: 0], source: :HasDNS4Service
-    field :dns_sec, :map
+    field(:domain, :string, primary_key: true)
+    field(:created_at, :date, source: :dateCreate)
+    field(:expires_at, :date, source: :dateExpiration)
+    field(:min_renew_at, :date, source: :dateMinRenew)
+    field(:max_renew_at, :date, source: :dateMaxRenew)
+    field(:max_restore_at, :date, source: :dateMaxRestore)
+    field(:status, Ecto.Enum, values: @domain_statuses)
+    field(:contact_owner_id, :string, source: :idOwner)
+    field(:contact_admin_id, :string, source: :idAdmin)
+    field(:contact_tech_id, :string, source: :idTech)
+    field(:contact_billing_id, :string, source: :idBilling)
+    field(:lock?, Ecto.Enum, values: [true: 1, false: 0], source: :domainIsLock)
+    field(:whois_privacy?, Ecto.Enum, values: [true: 1, false: 0], source: :whoisPrivacy)
+    field(:auto_renew?, Ecto.Enum, values: [true: 1, false: 0], source: :autoRenew)
+    field(:ns, {:array, :string})
+    field(:auth_id, :string, source: :authID)
+    field(:signed?, Ecto.Enum, values: [true: 1, false: 0], source: :IsSigned)
+    field(:dns4service?, Ecto.Enum, values: [true: 1, false: 0], source: :HasDNS4Service)
+    field(:dns_sec, :map)
   end
 
   @spec info(String.t()) :: t() | nil
@@ -85,8 +85,12 @@ defmodule Netim.Domain do
     |> Netim.base([id_session, domain])
     |> Netim.request()
     |> case do
-      {:ok, %{"queryDomainClaimReturn" => 0}} -> false
-      {:ok, %{"queryDomainClaimReturn" => 1}} -> true
+      {:ok, %{"queryDomainClaimReturn" => 0}} ->
+        false
+
+      {:ok, %{"queryDomainClaimReturn" => 1}} ->
+        true
+
       error ->
         Logger.error("cannot check domain claim: #{inspect(error)}")
         nil
@@ -109,33 +113,196 @@ defmodule Netim.Domain do
     end
   end
 
-  def create(domain, id_owner, id_admin, id_tech, id_billing, ns1, ns2, ns3, ns4, ns5, duration, template_dns \\ nil) do
-    Session.transaction(&create(&1, domain, id_owner, id_admin, id_tech, id_billing, ns1, ns2, ns3, ns4, ns5, duration, template_dns))
+  def create(
+        domain,
+        id_owner,
+        id_admin,
+        id_tech,
+        id_billing,
+        ns1,
+        ns2,
+        ns3,
+        ns4,
+        ns5,
+        duration,
+        template_dns \\ nil
+      ) do
+    Session.transaction(
+      &create(
+        &1,
+        domain,
+        id_owner,
+        id_admin,
+        id_tech,
+        id_billing,
+        ns1,
+        ns2,
+        ns3,
+        ns4,
+        ns5,
+        duration,
+        template_dns
+      )
+    )
   end
 
-  def create(id_session, domain, id_owner, id_admin, id_tech, id_billing, ns1, ns2, ns3, ns4, ns5, duration, template_dns) do
+  def create(
+        id_session,
+        domain,
+        id_owner,
+        id_admin,
+        id_tech,
+        id_billing,
+        ns1,
+        ns2,
+        ns3,
+        ns4,
+        ns5,
+        duration,
+        template_dns
+      ) do
     "domainCreate"
-    |> Netim.base([id_session, domain, id_owner, id_admin, id_tech, id_billing, ns1, ns2, ns3, ns4, ns5, duration, template_dns])
+    |> Netim.base([
+      id_session,
+      domain,
+      id_owner,
+      id_admin,
+      id_tech,
+      id_billing,
+      ns1,
+      ns2,
+      ns3,
+      ns4,
+      ns5,
+      duration,
+      template_dns
+    ])
     |> Netim.request()
   end
 
-  def transfer_in(domain, auth_id, id_owner, id_admin, id_tech, id_billing, ns1, ns2, ns3, ns4, ns5) do
-    Session.transaction(&transfer_in(&1, domain, auth_id, id_owner, id_admin, id_tech, id_billing, ns1, ns2, ns3, ns4, ns5))
+  def transfer_in(
+        domain,
+        auth_id,
+        id_owner,
+        id_admin,
+        id_tech,
+        id_billing,
+        ns1,
+        ns2,
+        ns3,
+        ns4,
+        ns5
+      ) do
+    Session.transaction(
+      &transfer_in(
+        &1,
+        domain,
+        auth_id,
+        id_owner,
+        id_admin,
+        id_tech,
+        id_billing,
+        ns1,
+        ns2,
+        ns3,
+        ns4,
+        ns5
+      )
+    )
   end
 
-  def transfer_in(id_session, domain, auth_id, id_owner, id_admin, id_tech, id_billing, ns1, ns2, ns3, ns4, ns5) do
+  def transfer_in(
+        id_session,
+        domain,
+        auth_id,
+        id_owner,
+        id_admin,
+        id_tech,
+        id_billing,
+        ns1,
+        ns2,
+        ns3,
+        ns4,
+        ns5
+      ) do
     "domainTransferIn"
-    |> Netim.base([id_session, domain, auth_id, id_owner, id_admin, id_tech, id_billing, ns1, ns2, ns3, ns4, ns5])
+    |> Netim.base([
+      id_session,
+      domain,
+      auth_id,
+      id_owner,
+      id_admin,
+      id_tech,
+      id_billing,
+      ns1,
+      ns2,
+      ns3,
+      ns4,
+      ns5
+    ])
     |> Netim.request()
   end
 
-  def internal_transfer(domain, auth_id, id_owner, id_admin, id_tech, id_billing, ns1, ns2, ns3, ns4, ns5) do
-    Session.transaction(&internal_transfer(&1, domain, auth_id, id_owner, id_admin, id_tech, id_billing, ns1, ns2, ns3, ns4, ns5))
+  def internal_transfer(
+        domain,
+        auth_id,
+        id_owner,
+        id_admin,
+        id_tech,
+        id_billing,
+        ns1,
+        ns2,
+        ns3,
+        ns4,
+        ns5
+      ) do
+    Session.transaction(
+      &internal_transfer(
+        &1,
+        domain,
+        auth_id,
+        id_owner,
+        id_admin,
+        id_tech,
+        id_billing,
+        ns1,
+        ns2,
+        ns3,
+        ns4,
+        ns5
+      )
+    )
   end
 
-  def internal_transfer(id_session, domain, auth_id, id_owner, id_admin, id_tech, id_billing, ns1, ns2, ns3, ns4, ns5) do
+  def internal_transfer(
+        id_session,
+        domain,
+        auth_id,
+        id_owner,
+        id_admin,
+        id_tech,
+        id_billing,
+        ns1,
+        ns2,
+        ns3,
+        ns4,
+        ns5
+      ) do
     "domainInternalTransfer"
-    |> Netim.base([id_session, domain, auth_id, id_owner, id_admin, id_tech, id_billing, ns1, ns2, ns3, ns4, ns5])
+    |> Netim.base([
+      id_session,
+      domain,
+      auth_id,
+      id_owner,
+      id_admin,
+      id_tech,
+      id_billing,
+      ns1,
+      ns2,
+      ns3,
+      ns4,
+      ns5
+    ])
     |> Netim.request()
   end
 

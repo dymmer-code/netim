@@ -18,35 +18,55 @@ defmodule Netim.Contact do
 
   @primary_key false
   typed_embedded_schema do
-    field :id, :string, primary_key: true
-    field :first_name, :string, source: :firstName
-    field :last_name, :string, source: :lastName
-    field :body_form, Ecto.Enum, values: [individual: "IND", organization: "ORG"], default: :individual, source: :bodyForm, embed_as: :dumped
-    field :body_name, :string, source: :bodyName
-    field :address1, :string
-    field :address2, :string
-    field :zip_code, :string, source: :zipCode
-    field :area, :string
-    field :city, :string
-    field :country, :string
-    field :phone, :string
-    field :fax, :string
-    field :email, :string
-    field :language, Ecto.Enum, values: [en: "EN", fr: "FR"], default: :en, embed_as: :dumped
-    field :is_owner, Ecto.Enum, values: [true: 1, false: 0], default: false, source: :isOwner, embed_as: :dumped
-    # tm (Trademark) data
-    field :tm_name, :string, source: :tmName
-    field :tm_date, :date, source: :tmDate
-    field :tm_number, :string, source: :tmNumber
-    field :tm_type, Ecto.Enum, values: [nil: "", national: "INPI", european: "OHIM", international: "WIPO"], source: :tmType, embed_as: :dumped
-    field :company_number, :string, source: :companyNumber
-    field :vat_number, :string, source: :vatNumber
-    field :birth_date, :date, source: :birthDate
-    field :birth_zip_code, :string, source: :birthZipCode
-    field :birth_city, :string, source: :birthCity
-    field :birth_country, :string, source: :birthCountry
-    field :id_number, :string, source: :idNumber
-    field :additional, :map, default: %{}
+    field(:id, :string, primary_key: true)
+    field(:first_name, :string, source: :firstName)
+    field(:last_name, :string, source: :lastName)
+
+    field(:body_form, Ecto.Enum,
+      values: [individual: "IND", organization: "ORG"],
+      default: :individual,
+      source: :bodyForm,
+      embed_as: :dumped
+    )
+
+    field(:body_name, :string, source: :bodyName)
+    field(:address1, :string)
+    field(:address2, :string)
+    field(:zip_code, :string, source: :zipCode)
+    field(:area, :string)
+    field(:city, :string)
+    field(:country, :string)
+    field(:phone, :string)
+    field(:fax, :string)
+    field(:email, :string)
+    field(:language, Ecto.Enum, values: [en: "EN", fr: "FR"], default: :en, embed_as: :dumped)
+
+    field(:is_owner, Ecto.Enum,
+      values: [true: 1, false: 0],
+      default: false,
+      source: :isOwner,
+      embed_as: :dumped
+    )
+
+    #  tm (Trademark) data
+    field(:tm_name, :string, source: :tmName)
+    field(:tm_date, :date, source: :tmDate)
+    field(:tm_number, :string, source: :tmNumber)
+
+    field(:tm_type, Ecto.Enum,
+      values: [nil: "", national: "INPI", european: "OHIM", international: "WIPO"],
+      source: :tmType,
+      embed_as: :dumped
+    )
+
+    field(:company_number, :string, source: :companyNumber)
+    field(:vat_number, :string, source: :vatNumber)
+    field(:birth_date, :date, source: :birthDate)
+    field(:birth_zip_code, :string, source: :birthZipCode)
+    field(:birth_city, :string, source: :birthCity)
+    field(:birth_country, :string, source: :birthCountry)
+    field(:id_number, :string, source: :idNumber)
+    field(:additional, :map, default: %{})
   end
 
   @required_fields ~w[first_name last_name address1 zip_code city country phone email]a
@@ -122,10 +142,9 @@ defmodule Netim.Contact do
     country = get_field(changeset, country_field)
     area = get_field(changeset, area_field)
 
-    error = (
+    error =
       (country in @countries_required_areas and area not in areas_for(country)) or
-      (country not in @countries_required_areas and area not in ["", nil])
-    )
+        (country not in @countries_required_areas and area not in ["", nil])
 
     if error do
       add_error(changeset, area_field, "invalid area for given country")

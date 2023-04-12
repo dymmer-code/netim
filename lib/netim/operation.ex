@@ -13,11 +13,11 @@ defmodule Netim.Operation do
 
   @primary_key false
   typed_embedded_schema do
-    field :id, :integer, source: :ID_OPE
-    field :created_at, :naive_datetime, source: :DATE
-    field :message, :string, source: :MESSAGE
-    field :status, Ecto.Enum, values: @operation_statuses, source: :STATUS
-    field :type, :string, source: :TYPE
+    field(:id, :integer, source: :ID_OPE)
+    field(:created_at, :naive_datetime, source: :DATE)
+    field(:message, :string, source: :MESSAGE)
+    field(:status, Ecto.Enum, values: @operation_statuses, source: :STATUS)
+    field(:type, :string, source: :TYPE)
   end
 
   def info(id_operation), do: Session.transaction(&info(&1, id_operation))
