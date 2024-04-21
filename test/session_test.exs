@@ -21,7 +21,7 @@ defmodule Netim.SessionTest do
       response(conn, :error, "E01-M0101", "Unable to connect - Bad login / password combinaison")
     end)
 
-    result = IO.inspect(Netim.Session.open(@reseller_id, @password), label: "result")
+    result = Netim.Session.open(@reseller_id, @password)
     assert is_nil(result)
   end
 
@@ -75,7 +75,7 @@ defmodule Netim.SessionTest do
              time_login_unix: 1_681_259_368,
              time_last_activity_unix: 1_681_259_578,
              lang: :en,
-             sync: true
+             sync?: true
            } == Netim.Session.info(@session_id)
   end
 
@@ -104,7 +104,7 @@ defmodule Netim.SessionTest do
                time_login_unix: 1_681_259_368,
                time_last_activity_unix: 1_681_259_578,
                lang: :en,
-               sync: true
+               sync?: true
              }
            ] == Netim.Session.get_all_sessions(@session_id)
   end

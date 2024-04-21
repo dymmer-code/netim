@@ -17,7 +17,7 @@ defmodule Netim.MixProject do
 
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger, :inets, :ssl, :public_key]
     ]
   end
 
@@ -25,9 +25,18 @@ defmodule Netim.MixProject do
     [
       {:soap, github: "altenwald/soap-elixir"},
       {:countries, "~> 1.6"},
+      {:money, "~> 1.12"},
       {:typed_ecto_schema, "~> 0.4"},
       {:ecto, "~> 3.9"},
-      {:bypass, "~> 2.1", only: :test}
+      {:bypass, "~> 2.1", only: :test},
+
+      # only for dev
+      {:dialyxir, ">= 0.0.0", only: [:dev, :test], runtime: false},
+      {:credo, ">= 0.0.0", only: [:dev, :test], runtime: false},
+      {:doctor, ">= 0.0.0", only: [:dev, :test], runtime: false},
+      {:ex_check, "~> 0.14", only: [:dev, :test], runtime: false},
+      {:ex_doc, ">= 0.0.0", only: [:dev, :test], runtime: false},
+      {:mix_audit, ">= 0.0.0", only: [:dev, :test], runtime: false}
     ]
   end
 end

@@ -1,7 +1,15 @@
 defmodule Netim.Contact do
+  @moduledoc """
+  Contact operations, it let us create owner, admin, billing, and tech contacts.
+  """
   use TypedEctoSchema
+
   import Ecto.Changeset
+
   require Logger
+
+  alias Netim.Fault
+  alias Netim.Operation
   alias Netim.Session
 
   @name_regex ~r|^[a-zA-Zàáâãäåāăąæçćĉċčďđèéêëēĕėęěĝġģĥħìíîïĩīĭįıĵķĺļľŀłñńņňŉòóôõöōŏőøœŕŗřśŝšșťŧț
@@ -17,6 +25,7 @@ defmodule Netim.Contact do
   ÝŸŶŹŻŽ&\ \-\,\.\'\/]{0,80}$|
 
   @primary_key false
+
   typed_embedded_schema do
     field(:id, :string, primary_key: true)
     field(:first_name, :string, source: :firstName)
@@ -72,24 +81,7 @@ defmodule Netim.Contact do
   @required_fields ~w[first_name last_name address1 zip_code city country phone email]a
   @optional_fields ~w[body_form body_name address2 area fax language is_owner tm_name tm_date tm_number tm_type company_number vat_number birth_date birth_country birth_zip_code birth_city id_number additional]a
 
-  def info(contact), do: Session.transaction(&info(&1, contact))
-
-  def info(id_session, contact_id) do
-    "contactInfo"
-    |> Netim.base([id_session, contact_id])
-    |> Netim.request()
-    |> case do
-      {:ok, %{"contact" => contact}} ->
-        contact
-        |> Map.put("id", contact_id)
-        |> then(&Ecto.embedded_load(__MODULE__, &1, :json))
-
-      error ->
-        Logger.error("cannot get contact info: #{inspect(error)}")
-        nil
-    end
-  end
-
+  @doc false
   def changeset(contact \\ %__MODULE__{}, params) when is_map(params) do
     contact
     |> cast(params, @required_fields ++ @optional_fields)
@@ -184,6 +176,37 @@ defmodule Netim.Contact do
     end
   end
 
+  @doc """
+  Retrieve the information of the contact given the contact ID.
+  """
+  @spec info(String.t()) :: t() | nil
+  def info(contact), do: Session.transaction(&info(&1, contact))
+
+  @doc """
+  Retrieve the information of the contact given an opened session ID
+  and a valid contact ID.
+  """
+  @spec info(String.t(), String.t()) :: t() | nil
+  def info(id_session, contact_id) do
+    "contactInfo"
+    |> Netim.base([id_session, contact_id])
+    |> Netim.request()
+    |> case do
+      {:ok, %{"contact" => contact}} ->
+        contact
+        |> Map.put("id", contact_id)
+        |> then(&Ecto.embedded_load(__MODULE__, &1, :json))
+
+      error ->
+        Logger.error("cannot get contact info: #{inspect(error)}")
+        nil
+    end
+  end
+
+  @doc """
+  Create a contact given a list of attributes or a map with the attributes.
+  The required attributes could be consulted on the type `t/0`.
+  """
   def create(data) when is_list(data) do
     create(Map.new(data))
   end
@@ -192,14 +215,28 @@ defmodule Netim.Contact do
     Session.transaction(&create(&1, data))
   end
 
+  @doc """
+  Create a contact given a list of attributes or a map with the attributes.
+  The required attributes could be consulted on the type `t/0`. In addition,
+  it requires a session ID.
+  """
+  @spec create(String.t(), [any()] | map()) :: {:ok, String.t()} | {:error, any()}
   def create(id_session, params) do
     with {:ok, data} <- changeset(params) do
       "contactCreate"
       |> Netim.base([{"IDSession", id_session}, {"contact", data}])
       |> Netim.request()
+      |> case do
+        {:ok, %{"idContact" => id_contact}} -> {:ok, id_contact}
+        {:error, _reason} = error -> error
+      end
     end
   end
 
+  @doc """
+  Update an existent contact given the list of attributes in a list or map
+  based data. The first paramter should be a contact struct.
+  """
   def update(contact, data) when is_list(data) do
     update(contact, Map.new(data))
   end
@@ -208,23 +245,40 @@ defmodule Netim.Contact do
     Session.transaction(&update(&1, contact, data))
   end
 
+  @doc """
+  Update an existent contact given the list of attributes in a list or map
+  based data. The first paramter should be a contact struct. In addition,
+  it requires a session ID.
+  """
   def update(id_session, contact, params) do
     with {:ok, data} <- changeset(contact, params) do
       "contactUpdate"
       |> Netim.base([{"IDSession", id_session}, {"idContact", contact.id}, {"contact", data}])
       |> Netim.request()
-      |> Netim.Operation.cast()
+      |> case do
+        {:ok, %{"return" => operation}} ->
+          Ecto.embedded_load(Operation, operation, :json)
+
+        {:error, reason} ->
+          Ecto.embedded_load(Fault, reason, :json)
+      end
     end
   end
 
+  @doc """
+  Delete a contact given the contact ID.
+  """
   def delete(contact_id) do
     Session.transaction(&delete(&1, contact_id))
   end
 
+  @doc """
+  Delete a contact given the contact ID and the opened session ID.
+  """
   def delete(id_session, contact_id) do
     "contactDelete"
     |> Netim.base([{"IDSession", id_session}, {"idContact", contact_id}])
     |> Netim.request()
-    |> Netim.Operation.cast()
+    |> Operation.cast()
   end
 end

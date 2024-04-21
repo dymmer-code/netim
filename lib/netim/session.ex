@@ -1,12 +1,22 @@
 defmodule Netim.Session do
+  @moduledoc """
+  Session is the structure of data needed to perform actions with Netim.
+  We need to create a sessiona and then use the ID for each request.
+  """
   require Logger
   alias Netim.Session.Info
 
   @opaque session_id() :: String.t()
-  @type reseller_id() :: String.t() | nil
-  @type password() :: String.t() | nil
-  @type language() :: String.t()
+  @typep reseller_id() :: String.t() | nil
+  @typep password() :: String.t() | nil
+  @typep language() :: String.t()
 
+  @doc """
+  Open a session. We can indicate only the reseller ID and optionally the
+  password and the language you want to use.
+
+  The language by default is `"EN"` and we can only use that and `"FR"`.
+  """
   @spec open(reseller_id()) :: session_id() | nil
   @spec open(reseller_id(), password()) :: session_id() | nil
   @spec open(reseller_id(), password(), language()) :: session_id() | nil
@@ -27,6 +37,10 @@ defmodule Netim.Session do
     end
   end
 
+  @doc """
+  Close an opened session. If the session doesn't exist it will return us
+  an error.
+  """
   @spec close(session_id()) :: :ok | {:error, any()}
   def close(id_session) do
     "sessionClose"
@@ -42,6 +56,9 @@ defmodule Netim.Session do
     end
   end
 
+  @doc """
+  Information about the session.
+  """
   @spec info(session_id()) :: Info.t() | nil
   def info(id_session) do
     "sessionInfo"
@@ -57,10 +74,20 @@ defmodule Netim.Session do
     end
   end
 
+  @doc """
+  Set the synchronisation of the session. We can configure the session to
+  return the values directly or if we want to receive operations instead.
+
+  While synchronisation activated is giving us the final result, it's a risk
+  because the operation could take longer than expected and provoke a timeout.
+  """
   @spec set_sync(session_id(), boolean()) :: :ok | {:error, any()}
   def set_sync(id_session, true), do: set_preference(id_session, "sync", "1")
   def set_sync(id_session, false), do: set_preference(id_session, "sync", "0")
 
+  @doc """
+  Set the language for the session. We can choose only between `:en` and `:fr`.
+  """
   @spec set_lang(session_id(), Info.languages()) :: :ok | {:error, any()}
   def set_lang(id_session, :en), do: set_preference(id_session, "lang", "EN")
   def set_lang(id_session, :fr), do: set_preference(id_session, "lang", "FR")
@@ -79,6 +106,9 @@ defmodule Netim.Session do
     end
   end
 
+  @doc """
+  Get all of the opened sessions.
+  """
   @spec get_all_sessions(session_id()) :: [Info.t()] | nil
   def get_all_sessions(id_session) do
     "queryAllSessions"
@@ -94,6 +124,16 @@ defmodule Netim.Session do
     end
   end
 
+  @doc """
+  Create a transaction. The transaction is a way for the rest of the functions
+  to run without the hassle of open and close the session, they rely on the
+  transaction for create and destroy the session they are going to use.
+
+  At the moment the transaction is performing a simple open and close
+  operations around the function to be called.
+
+  TODO create a pool where we put opened sessions we could use whenever.
+  """
   @spec transaction((session_id() -> any())) :: any()
   @spec transaction((session_id() -> any()), reseller_id()) :: any()
   @spec transaction((session_id() -> any()), reseller_id(), password()) :: any()

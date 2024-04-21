@@ -1,9 +1,25 @@
 defmodule Netim.Tld do
+  @moduledoc """
+  TLD module let us retrieve the information about a TLD and the list of
+  prices.
+  """
   use TypedEctoSchema
+
   require Logger
+
   alias Netim.Session
+  alias Netim.Tld.Extension
+  alias Netim.Tld.Price
+  alias Netim.Tld.Range
 
   @primary_key false
+
+  @typedoc """
+  The information about the TLD. The information available is:
+
+  - `tld` the name of the TLD, i.e. "com"
+  - `country` the name of the country where it belongs.
+  """
   typed_embedded_schema do
     field(:tld, :string, primary_key: true)
     field(:country, :string, source: :Country)
@@ -11,10 +27,7 @@ defmodule Netim.Tld do
     field(:delai_renew_before_expiration, :integer, source: :DelaiRenewBeforeExpiration)
     field(:delai_renew_after_delete, :integer, source: :DelaiRenewAfterDelete)
 
-    embeds_many :extension, Extension, source: :Extensions, primary_key: false do
-      field(:tld, {:array, :string})
-      field(:type, Ecto.Enum, values: ~w[ popular regional functional ]a)
-    end
+    embeds_many(:extension, Extension, source: :Extensions)
 
     field(:local_contact_service_fee, :decimal, source: :Fee4LocalContactService)
     field(:registration_free, :decimal, source: :Fee4Registration)
@@ -23,7 +36,7 @@ defmodule Netim.Tld do
     field(:trade_fee, :decimal, source: :Fee4Trade)
     field(:transfer_fee, :decimal, source: :Fee4Transfer)
     field(:trustee_service_fee, :decimal, source: :Fee4TrusteeService)
-    field(:currency_fee, :string, source: :FeeCurrency)
+    field(:currency_fee, Money.Ecto.Currency.Type, source: :FeeCurrency) :: atom()
     field(:has_autorenew?, Ecto.Enum, values: [true: 1, false: 0], source: :HasAutorenew)
     field(:has_dns_sec?, Ecto.Enum, values: [true: 1, false: 0], source: :HasDnsSec)
     field(:has_epp_code?, Ecto.Enum, values: [true: 1, false: 0], source: :HasEppCode)
@@ -49,12 +62,19 @@ defmodule Netim.Tld do
     field(:has_whois_privacy?, Ecto.Enum, values: [true: 1, false: 0], source: :HasWhoisPrivacy)
     field(:has_zonecheck?, Ecto.Enum, values: [true: 1, false: 0], source: :HasZonecheck)
     field(:informations, :string, source: :Informations)
-    field(:period_create, :string, source: :PeriodCreate)
-    field(:period_renew, :string, source: :PeriodRenew)
+    field(:period_create, Range, source: :PeriodCreate)
+    field(:period_renew, Range, source: :PeriodRenew)
   end
 
+  @doc """
+  Retrieve information about the TLD.
+  """
   def info(tld), do: Session.transaction(&info(&1, tld))
 
+  @doc """
+  Same as `info/1` but adding the session ID. Check `Netim.Session`
+  for further information.
+  """
   def info(id_session, tld) do
     "domainTldInfo"
     |> Netim.base([id_session, tld])
@@ -69,15 +89,22 @@ defmodule Netim.Tld do
     end
   end
 
+  @doc """
+  Get the list of prices.
+  """
   def price_list, do: Session.transaction(&price_list/1)
 
+  @doc """
+  Same as `price_list/1` but adding the session ID. Check `Netim.Session`
+  for further information.
+  """
   def price_list(id_session) do
     "domainPriceList"
     |> Netim.base([id_session])
     |> Netim.request()
     |> case do
-      {:ok, %{"return" => return}} ->
-        return
+      {:ok, %{"return" => prices}} ->
+        for price <- prices, do: Ecto.embedded_load(Price, price, :json)
 
       error ->
         Logger.error("cannot retrieve price list: #{inspect(error)}")

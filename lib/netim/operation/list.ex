@@ -1,4 +1,7 @@
 defmodule Netim.Operation.List do
+  @moduledoc """
+  Each kind of operation let by a TLD.
+  """
   use TypedEctoSchema
 
   @boolean [true: "1", false: "0"]
