@@ -9,6 +9,7 @@ defmodule Netim.Operation do
 
   alias Netim.Operation.List
   alias Netim.Session
+  alias Netim.Soap, as: NetimSoap
 
   @operation_statuses [
     cancelled: "Cancelled",
@@ -19,6 +20,7 @@ defmodule Netim.Operation do
 
   @operation_types [
     contact_update: "contactUpdate",
+    contact_delete: "contactDelete",
     domain_authid: "domainAuthid",
     domain_change_contact: "domainChangeContact",
     domain_change_dns: "domainChangeDNS",
@@ -33,6 +35,7 @@ defmodule Netim.Operation do
     domain_set_dnssec: "domainSetDNSSEC",
     domain_set_dnssec_ext: "domainSetDNSSECExt",
     domain_set_membership: "domainSetMembership",
+    domain_set_preference: "domainSetPreference",
     domain_set_preference_auto_renew: "domainSetPreference.auto_renew",
     domain_set_preference_registrar_lock: "domainSetPreference.registrar_lock",
     domain_set_preference_to_be_renewed: "domainSetPreference.to_be_renewed",
@@ -98,8 +101,8 @@ defmodule Netim.Operation do
   """
   def info(id_session, id_operation) do
     "queryOpe"
-    |> Netim.base([id_session, id_operation])
-    |> Netim.request()
+    |> NetimSoap.base([id_session, id_operation])
+    |> NetimSoap.request()
     |> cast()
   end
 
@@ -116,8 +119,8 @@ defmodule Netim.Operation do
   """
   def list(id_session, tld) do
     "queryOpeList"
-    |> Netim.base([id_session, tld])
-    |> Netim.request()
+    |> NetimSoap.base([id_session, tld])
+    |> NetimSoap.request()
     |> case do
       {:ok, %{"return" => return}} ->
         return = Map.put(return, "tld", tld)
@@ -141,8 +144,8 @@ defmodule Netim.Operation do
   """
   def list_pending(id_session) do
     "queryOpePending"
-    |> Netim.base([id_session])
-    |> Netim.request()
+    |> NetimSoap.base([id_session])
+    |> NetimSoap.request()
     |> case do
       {:ok, %{"return" => operations}} ->
         {:ok, Enum.map(operations, &Ecto.embedded_load(__MODULE__, &1, :json))}

@@ -3,6 +3,7 @@ defmodule Netim.Case do
   Simulate the Netim system for create sessions and attend requests.
   """
   alias Proximal.Xmlel
+  alias Netim.Soap, as: NetimSoap
 
   def netim_setup(_args) do
     bypass = Bypass.open()
@@ -24,7 +25,7 @@ defmodule Netim.Case do
   end
 
   def envelope(name, data) do
-    Netim.base(name, data)
+    NetimSoap.base(name, data)
     |> Proximal.to_xmlel()
     |> to_string()
   end

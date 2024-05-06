@@ -8,9 +8,11 @@ defmodule Netim.Contact do
 
   require Logger
 
+  alias Netim.Contact.List, as: ContactList
   alias Netim.Fault
   alias Netim.Operation
   alias Netim.Session
+  alias Netim.Soap, as: NetimSoap
 
   @name_regex ~r|^[a-zA-Zàáâãäåāăąæçćĉċčďđèéêëēĕėęěĝġģĥħìíîïĩīĭįıĵķĺļľŀłñńņňŉòóôõöōŏőøœŕŗřśŝšșťŧț
   úûüũūŭůűųŵýÿŷźżžßÀÁÂÃÄÅĀĂĄÆÇĆĈĊČĎĐÈÉÊËĒĔĖĘĚĜĠĢĤĦÌÍÎÏĨĪĬĮIĴĶĹĻĽĿŁÑŃŅŇÒÓÔÕÖŌŎŐØŒŔŖŘŚŜŠȘŤŦȚÙÚÛÜŨŪŬŮŰŲŴÝŸŶ
@@ -177,6 +179,26 @@ defmodule Netim.Contact do
   end
 
   @doc """
+  List the contacts.
+  """
+  def list(field, filter) do
+    Session.transaction(&list(&1, field, filter))
+  end
+
+  defp list(id_session, field, filter) do
+    "queryContactList"
+    |> NetimSoap.base([id_session, filter, field])
+    |> NetimSoap.request()
+    |> case do
+      {:ok, %{"queryContactListReturn" => contacts}} ->
+        {:ok, Enum.map(contacts, &ContactList.cast/1)}
+
+      {:error, _} = error ->
+        error
+    end
+  end
+
+  @doc """
   Retrieve the information of the contact given the contact ID.
   """
   @spec info(String.t()) :: t() | nil
@@ -189,8 +211,8 @@ defmodule Netim.Contact do
   @spec info(String.t(), String.t()) :: t() | nil
   def info(id_session, contact_id) do
     "contactInfo"
-    |> Netim.base([id_session, contact_id])
-    |> Netim.request()
+    |> NetimSoap.base([id_session, contact_id])
+    |> NetimSoap.request()
     |> case do
       {:ok, %{"contact" => contact}} ->
         contact
@@ -224,8 +246,8 @@ defmodule Netim.Contact do
   def create(id_session, params) do
     with {:ok, data} <- changeset(params) do
       "contactCreate"
-      |> Netim.base([{"IDSession", id_session}, {"contact", data}])
-      |> Netim.request()
+      |> NetimSoap.base([{"IDSession", id_session}, {"contact", data}])
+      |> NetimSoap.request()
       |> case do
         {:ok, %{"idContact" => id_contact}} -> {:ok, id_contact}
         {:error, _reason} = error -> error
@@ -253,8 +275,8 @@ defmodule Netim.Contact do
   def update(id_session, contact, params) do
     with {:ok, data} <- changeset(contact, params) do
       "contactUpdate"
-      |> Netim.base([{"IDSession", id_session}, {"idContact", contact.id}, {"contact", data}])
-      |> Netim.request()
+      |> NetimSoap.base([{"IDSession", id_session}, {"idContact", contact.id}, {"contact", data}])
+      |> NetimSoap.request()
       |> case do
         {:ok, %{"return" => operation}} ->
           Ecto.embedded_load(Operation, operation, :json)
@@ -277,8 +299,8 @@ defmodule Netim.Contact do
   """
   def delete(id_session, contact_id) do
     "contactDelete"
-    |> Netim.base([{"IDSession", id_session}, {"idContact", contact_id}])
-    |> Netim.request()
+    |> NetimSoap.base([{"IDSession", id_session}, {"idContact", contact_id}])
+    |> NetimSoap.request()
     |> Operation.cast()
   end
 end

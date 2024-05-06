@@ -8,6 +8,7 @@ defmodule Netim.Tld do
   require Logger
 
   alias Netim.Session
+  alias Netim.Soap, as: NetimSoap
   alias Netim.Tld.Extension
   alias Netim.Tld.Price
   alias Netim.Tld.Range
@@ -77,8 +78,8 @@ defmodule Netim.Tld do
   """
   def info(id_session, tld) do
     "domainTldInfo"
-    |> Netim.base([id_session, tld])
-    |> Netim.request()
+    |> NetimSoap.base([id_session, tld])
+    |> NetimSoap.request()
     |> case do
       {:ok, %{"return" => return}} ->
         Ecto.embedded_load(__MODULE__, return, :json)
@@ -100,8 +101,8 @@ defmodule Netim.Tld do
   """
   def price_list(id_session) do
     "domainPriceList"
-    |> Netim.base([id_session])
-    |> Netim.request()
+    |> NetimSoap.base([id_session])
+    |> NetimSoap.request()
     |> case do
       {:ok, %{"return" => prices}} ->
         for price <- prices, do: Ecto.embedded_load(Price, price, :json)

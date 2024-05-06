@@ -12,6 +12,7 @@ defmodule Netim.Domain do
   alias Netim.Fault
   alias Netim.Operation
   alias Netim.Session
+  alias Netim.Soap, as: NetimSoap
 
   @domain_statuses [
     pending: "PENDING",
@@ -99,8 +100,8 @@ defmodule Netim.Domain do
   @spec info(String.t(), String.t()) :: t() | nil
   def info(id_session, domain) do
     "domainInfo"
-    |> Netim.base([id_session, domain])
-    |> Netim.request()
+    |> NetimSoap.base([id_session, domain])
+    |> NetimSoap.request()
     |> case do
       {:ok, %{"return" => return}} ->
         Ecto.embedded_load(__MODULE__, return, :json)
@@ -116,7 +117,7 @@ defmodule Netim.Domain do
   buy the domain and other information depending on the TLD and the
   domain.
   """
-  @spec check(String.t()) :: DomainCheck.t() | Netim.Fault.t()
+  @spec check(String.t()) :: DomainCheck.t() | Fault.t()
   def check(domain), do: Session.transaction(&check(&1, domain))
 
   @doc """
@@ -125,14 +126,14 @@ defmodule Netim.Domain do
   """
   def check(id_session, domain) do
     "domainCheck"
-    |> Netim.base([id_session, domain])
-    |> Netim.request()
+    |> NetimSoap.base([id_session, domain])
+    |> NetimSoap.request()
     |> case do
       {:ok, %{"domainCheckResponseReturn" => [result]}} ->
         DomainCheck.cast(result)
 
       {:error, reason} ->
-        fault = Ecto.embedded_load(Netim.Fault, reason, :json)
+        fault = Ecto.embedded_load(Fault, reason, :json)
         Logger.error("cannot check domain availability: #{fault.message}")
         fault
     end
@@ -151,8 +152,8 @@ defmodule Netim.Domain do
   @spec claim?(String.t(), String.t()) :: boolean() | nil
   def claim?(id_session, domain) do
     "queryDomainClaim"
-    |> Netim.base([id_session, domain])
-    |> Netim.request()
+    |> NetimSoap.base([id_session, domain])
+    |> NetimSoap.request()
     |> case do
       {:ok, %{"queryDomainClaimReturn" => 0}} ->
         false
@@ -179,8 +180,8 @@ defmodule Netim.Domain do
   @spec whois(String.t(), String.t()) :: String.t() | nil
   def whois(id_session, domain) do
     "domainWhois"
-    |> Netim.base([id_session, domain])
-    |> Netim.request()
+    |> NetimSoap.base([id_session, domain])
+    |> NetimSoap.request()
     |> case do
       {:ok, %{"strWhois" => whois}} ->
         whois
@@ -231,8 +232,8 @@ defmodule Netim.Domain do
 
   def create(id_session, domain, contacts, ns, duration, template_dns) do
     "domainCreate"
-    |> Netim.base([id_session, domain] ++ contacts ++ ns ++ [duration, template_dns])
-    |> Netim.request()
+    |> NetimSoap.base([id_session, domain] ++ contacts ++ ns ++ [duration, template_dns])
+    |> NetimSoap.request()
     |> return_or_fault()
   end
 
@@ -249,8 +250,8 @@ defmodule Netim.Domain do
   """
   def transfer_in(id_session, domain, auth_id, contacts, ns) do
     "domainTransferIn"
-    |> Netim.base([id_session, domain, auth_id] ++ contacts ++ ns)
-    |> Netim.request()
+    |> NetimSoap.base([id_session, domain, auth_id] ++ contacts ++ ns)
+    |> NetimSoap.request()
     |> return_or_fault()
   end
 
@@ -268,8 +269,79 @@ defmodule Netim.Domain do
   """
   def internal_transfer(id_session, domain, auth_id, contacts, ns) do
     "domainInternalTransfer"
-    |> Netim.base([id_session, domain, auth_id] ++ contacts ++ ns)
-    |> Netim.request()
+    |> NetimSoap.base([id_session, domain, auth_id] ++ contacts ++ ns)
+    |> NetimSoap.request()
+    |> return_or_fault()
+  end
+
+  @doc """
+  Renew the domain passed as first parameter for the indicated duration
+  in years.
+  """
+  def renew(domain, duration) do
+    Session.transaction(&renew(&1, domain, duration))
+  end
+
+  @doc """
+  Same as `renew/2` but adding the session ID. Check `Netim.Session` for
+  further information.
+  """
+  def renew(id_session, domain, duration) do
+    "domainRenew"
+    |> NetimSoap.base([id_session, domain, duration])
+    |> NetimSoap.request()
+    |> return_or_fault()
+  end
+
+  @doc """
+  Restore a domain name in quarantine / redemption status
+  """
+  def restore(domain) do
+    Session.transaction(&restore(&1, domain))
+  end
+
+  @doc """
+  Same as `restore/1` but adding the session ID. Check `Netim.Session`
+  for further information.
+  """
+  def restore(id_session, domain) do
+    "domainRestore"
+    |> NetimSoap.base([id_session, domain])
+    |> NetimSoap.request()
+    |> return_or_fault()
+  end
+
+  @doc """
+  Lock domain for avoiding tranfer to another domain.
+  """
+  def lock(domain) do
+    set_preference(domain, "registrar_lock", "1")
+  end
+
+  @doc """
+  Unlock domain for transfer it to another domain.
+  """
+  def unlock(domain) do
+    set_preference(domain, "registrar_lock", "0")
+  end
+
+  @doc """
+  Set a preference for the domain. It could be:
+
+  - `registrar_lock`
+  - `note`
+  - `tag`
+  - `to_be_renewed`
+  - `whois_privacy`
+  """
+  def set_preference(domain, key, value) do
+    Session.transaction(&set_preference(&1, domain, key, value))
+  end
+
+  def set_preference(id_session, domain, key, value) do
+    "domainSetPreference"
+    |> NetimSoap.base([id_session, domain, key, value])
+    |> NetimSoap.request()
     |> return_or_fault()
   end
 
@@ -290,8 +362,8 @@ defmodule Netim.Domain do
   @spec list(String.t(), String.t() | nil) :: [DomainList.t()]
   def list(id_session, filter) do
     "queryDomainList"
-    |> Netim.base([id_session, filter])
-    |> Netim.request()
+    |> NetimSoap.base([id_session, filter])
+    |> NetimSoap.request()
     |> case do
       {:ok, %{"queryDomainListReturn" => return}} ->
         Enum.map(return, &DomainList.cast/1)
@@ -321,8 +393,8 @@ defmodule Netim.Domain do
   @spec price(String.t(), String.t(), String.t() | nil) :: DomainPrice.t()
   def price(id_session, domain, auth_id) do
     "queryDomainPrice"
-    |> Netim.base([id_session, domain, auth_id])
-    |> Netim.request()
+    |> NetimSoap.base([id_session, domain, auth_id])
+    |> NetimSoap.request()
     |> case do
       {:ok, %{"queryDomainPriceReturn" => return}} ->
         return
@@ -354,16 +426,16 @@ defmodule Netim.Domain do
 
   def delete(id_session, domain, type) do
     "domainDelete"
-    |> Netim.base([id_session, domain, type])
-    |> Netim.request()
+    |> NetimSoap.base([id_session, domain, type])
+    |> NetimSoap.request()
     |> return_or_fault()
   end
 
   defp return_or_fault({:ok, %{"return" => operation}}) do
-    Ecto.embedded_load(Netim.Operation, operation, :json)
+    Ecto.embedded_load(Operation, operation, :json)
   end
 
   defp return_or_fault({:error, reason}) do
-    Ecto.embedded_load(Netim.Fault, reason, :json)
+    Ecto.embedded_load(Fault, reason, :json)
   end
 end

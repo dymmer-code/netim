@@ -5,6 +5,7 @@ defmodule Netim.Session do
   """
   require Logger
   alias Netim.Session.Info
+  alias Netim.Soap, as: NetimSoap
 
   @opaque session_id() :: String.t()
   @typep reseller_id() :: String.t() | nil
@@ -25,8 +26,8 @@ defmodule Netim.Session do
     password = password || Application.get_env(:netim, :password)
 
     "sessionOpen"
-    |> Netim.base([id_reseller, password, language])
-    |> Netim.request()
+    |> NetimSoap.base([id_reseller, password, language])
+    |> NetimSoap.request()
     |> case do
       {:ok, %{"IDSession" => session}} ->
         session
@@ -44,8 +45,8 @@ defmodule Netim.Session do
   @spec close(session_id()) :: :ok | {:error, any()}
   def close(id_session) do
     "sessionClose"
-    |> Netim.base([{"IDSession", id_session}])
-    |> Netim.request()
+    |> NetimSoap.base([{"IDSession", id_session}])
+    |> NetimSoap.request()
     |> case do
       {:ok, %{}} ->
         :ok
@@ -62,8 +63,8 @@ defmodule Netim.Session do
   @spec info(session_id()) :: Info.t() | nil
   def info(id_session) do
     "sessionInfo"
-    |> Netim.base([{"IDSession", id_session}])
-    |> Netim.request()
+    |> NetimSoap.base([{"IDSession", id_session}])
+    |> NetimSoap.request()
     |> case do
       {:ok, %{"return" => return}} ->
         Info.cast(return)
@@ -94,8 +95,8 @@ defmodule Netim.Session do
 
   defp set_preference(id_session, type, value) do
     "sessionSetPreference"
-    |> Netim.base([id_session, type, value])
-    |> Netim.request()
+    |> NetimSoap.base([id_session, type, value])
+    |> NetimSoap.request()
     |> case do
       {:ok, %{}} ->
         :ok
@@ -112,8 +113,8 @@ defmodule Netim.Session do
   @spec get_all_sessions(session_id()) :: [Info.t()] | nil
   def get_all_sessions(id_session) do
     "queryAllSessions"
-    |> Netim.base([id_session])
-    |> Netim.request()
+    |> NetimSoap.base([id_session])
+    |> NetimSoap.request()
     |> case do
       {:ok, %{"return" => sessions_info}} ->
         Enum.map(sessions_info, &Info.cast/1)

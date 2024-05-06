@@ -1,4 +1,4 @@
-defmodule Netim do
+defmodule Netim.Soap do
   @moduledoc """
   Documentation for `Netim`.
   """
