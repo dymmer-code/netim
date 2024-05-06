@@ -20,6 +20,7 @@ defmodule Netim.Operation do
 
   @operation_types [
     contact_update: "contactUpdate",
+    contact_owner_update: "contactOwnerUpdate",
     contact_delete: "contactDelete",
     domain_authid: "domainAuthid",
     domain_change_contact: "domainChangeContact",

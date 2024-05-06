@@ -28,8 +28,8 @@ defmodule Netim.Contact.List do
   """
   typed_embedded_schema do
     field(:id, :string, source: :idContact, primary_key: true)
-    field(:type, Ecto.Enum, values: @body_forms, source: :bodyForm)
-    field(:name, :string, source: :bodyName)
+    field(:body_form, Ecto.Enum, values: @body_forms, source: :bodyForm)
+    field(:body_name, :string, source: :bodyName)
     field(:first_name, :string, source: :firstName)
     field(:last_name, :string, source: :lastName)
     field(:owner?, Ecto.Enum, values: @boolean, source: :isOwner)

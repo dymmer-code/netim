@@ -52,7 +52,7 @@ defmodule Netim.Contact do
     field(:email, :string)
     field(:language, Ecto.Enum, values: [en: "EN", fr: "FR"], default: :en, embed_as: :dumped)
 
-    field(:is_owner, Ecto.Enum,
+    field(:owner?, Ecto.Enum,
       values: [true: 1, false: 0],
       default: false,
       source: :isOwner,
@@ -81,7 +81,7 @@ defmodule Netim.Contact do
   end
 
   @required_fields ~w[first_name last_name address1 zip_code city country phone email]a
-  @optional_fields ~w[body_form body_name address2 area fax language is_owner tm_name tm_date tm_number tm_type company_number vat_number birth_date birth_country birth_zip_code birth_city id_number additional]a
+  @optional_fields ~w[body_form body_name address2 area fax language owner? tm_name tm_date tm_number tm_type company_number vat_number birth_date birth_country birth_zip_code birth_city id_number additional]a
 
   @doc false
   def changeset(contact \\ %__MODULE__{}, params) when is_map(params) do
@@ -274,7 +274,8 @@ defmodule Netim.Contact do
   """
   def update(id_session, contact, params) do
     with {:ok, data} <- changeset(contact, params) do
-      "contactUpdate"
+      contact
+      |> get_update_action()
       |> NetimSoap.base([{"IDSession", id_session}, {"idContact", contact.id}, {"contact", data}])
       |> NetimSoap.request()
       |> case do
@@ -286,6 +287,9 @@ defmodule Netim.Contact do
       end
     end
   end
+
+  defp get_update_action(%__MODULE__{owner?: true}), do: "contactOwnerUpdate"
+  defp get_update_action(%__MODULE__{owner?: false}), do: "contactUpdate"
 
   @doc """
   Delete a contact given the contact ID.
