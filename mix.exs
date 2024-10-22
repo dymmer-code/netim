@@ -28,6 +28,7 @@ defmodule Netim.MixProject do
       {:money, "~> 1.12"},
       {:typed_ecto_schema, "~> 0.4"},
       {:ecto, "~> 3.9"},
+      {:whois, "~> 0.3"},
       {:bypass, "~> 2.1", only: :test},
 
       # only for dev

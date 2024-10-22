@@ -184,7 +184,7 @@ defmodule Netim.Domain do
     |> NetimSoap.request()
     |> case do
       {:ok, %{"strWhois" => whois}} ->
-        whois
+        Whois.Record.parse(whois)
 
       error ->
         Logger.error("cannot get whois for domain: #{inspect(error)}")
