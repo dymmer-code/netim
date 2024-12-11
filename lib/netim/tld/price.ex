@@ -14,6 +14,7 @@ defmodule Netim.Tld.Price do
   - `registration` the fee for the registration
   - `transfer` the fee for the transfer
   - `renewal` the fee for renew the domain
+  - `restore` the fee for restoration the domain
   - `trade` the fee for trading the domain
   """
   typed_embedded_schema do
@@ -21,6 +22,7 @@ defmodule Netim.Tld.Price do
     field(:registration, :decimal, source: :Fee4Registration)
     field(:transfer, :decimal, source: :Fee4Transfer)
     field(:renewal, :decimal, source: :Fee4Renewal)
+    field(:restore, :decimal, source: :Fee4Restore)
     field(:trade, :decimal, source: :Fee4Trade)
     field(:local_contact_service, :decimal, source: :Free4LocalContactService)
     field(:truee_service, :decimal, source: :Fee4TrusteeService)
