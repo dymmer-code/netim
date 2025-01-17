@@ -72,18 +72,40 @@ defmodule Netim.Domain do
     field(:min_renew_at, :date, source: :dateMinRenew)
     field(:max_renew_at, :date, source: :dateMaxRenew)
     field(:max_restore_at, :date, source: :dateMaxRestore)
-    field(:status, Ecto.Enum, values: @domain_statuses)
+    field(:status, Ecto.Enum, values: @domain_statuses, embed_as: :dumped)
     field(:contact_owner_id, :string, source: :idOwner)
     field(:contact_admin_id, :string, source: :idAdmin)
     field(:contact_tech_id, :string, source: :idTech)
     field(:contact_billing_id, :string, source: :idBilling)
-    field(:lock?, Ecto.Enum, values: [true: 1, false: 0], source: :domainIsLock)
-    field(:whois_privacy?, Ecto.Enum, values: [true: 1, false: 0], source: :whoisPrivacy)
-    field(:auto_renew?, Ecto.Enum, values: [true: 1, false: 0], source: :autoRenew)
+
+    field(:lock?, Ecto.Enum,
+      values: [true: 1, false: 0],
+      source: :domainIsLock,
+      embed_as: :dumped
+    )
+
+    field(:whois_privacy?, Ecto.Enum,
+      values: [true: 1, false: 0],
+      source: :whoisPrivacy,
+      embed_as: :dumped
+    )
+
+    field(:auto_renew?, Ecto.Enum,
+      values: [true: 1, false: 0],
+      source: :autoRenew,
+      embed_as: :dumped
+    )
+
     field(:ns, {:array, :string})
     field(:auth_id, :string, source: :authID)
-    field(:signed?, Ecto.Enum, values: [true: 1, false: 0], source: :IsSigned)
-    field(:dns4service?, Ecto.Enum, values: [true: 1, false: 0], source: :HasDNS4Service)
+    field(:signed?, Ecto.Enum, values: [true: 1, false: 0], source: :IsSigned, embed_as: :dumped)
+
+    field(:dns4service?, Ecto.Enum,
+      values: [true: 1, false: 0],
+      source: :HasDNS4Service,
+      embed_as: :dumped
+    )
+
     field(:dns_sec, :map)
   end
 
