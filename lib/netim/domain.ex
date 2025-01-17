@@ -126,7 +126,7 @@ defmodule Netim.Domain do
     |> NetimSoap.request()
     |> case do
       {:ok, %{"return" => return}} ->
-        Ecto.embedded_load(__MODULE__, return, :json)
+        Netim.Helpers.load(__MODULE__, return)
 
       error ->
         Logger.error("cannot get domain info: #{inspect(error)}")
