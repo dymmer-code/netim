@@ -1,6 +1,14 @@
 defmodule Netim.Helpers do
+  @moduledoc """
+  Helpers for letting load data into schemas in a more relaxed way,
+  instead of the Ecto.embedded_load function.
+  """
   import Ecto.Changeset
 
+  @doc """
+  Let us load the `params` passed as second parameter into a schema
+  based on the `module` passed as first parameter.
+  """
   def load(module, params) do
     defaults = module.__schema__(:loaded)
 
