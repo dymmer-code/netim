@@ -24,23 +24,23 @@ defmodule Netim.Tld do
   typed_embedded_schema do
     field(:tld, :string, primary_key: true)
     field(:country, :string, source: :Country)
-    field(:delai_renew_after_expiration, :integer, source: :DelaiRenewAfterExpiration)
-    field(:delai_renew_before_expiration, :integer, source: :DelaiRenewBeforeExpiration)
-    field(:delai_renew_after_delete, :integer, source: :DelaiRenewAfterDelete)
+    field(:delay_renew_after_expiration, :integer, source: :DelaiRenewAfterExpiration)
+    field(:delay_renew_before_expiration, :integer, source: :DelaiRenewBeforeExpiration)
+    field(:delay_renew_after_delete, :integer, source: :DelaiRenewAfterDelete)
 
     embeds_many(:extension, Extension, source: :Extensions)
 
     field(:local_contact_service_fee, :decimal, source: :Fee4LocalContactService)
     field(:registration_free, :decimal, source: :Fee4Registration)
     field(:renewal_fee, :decimal, source: :Fee4Renewal)
-    field(:restore_fee, :decimal, source: :Fee4Renewal)
+    field(:restore_fee, :decimal, source: :Fee4Restore)
     field(:trade_fee, :decimal, source: :Fee4Trade)
     field(:transfer_fee, :decimal, source: :Fee4Transfer)
     field(:trustee_service_fee, :decimal, source: :Fee4TrusteeService)
     field(:currency_fee, Money.Ecto.Currency.Type, source: :FeeCurrency) :: atom()
-    field(:has_autorenew?, Ecto.Enum, values: [true: 1, false: 0], source: :HasAutorenew)
-    field(:has_dns_sec?, Ecto.Enum, values: [true: 1, false: 0], source: :HasDnsSec)
-    field(:has_epp_code?, Ecto.Enum, values: [true: 1, false: 0], source: :HasEppCode)
+    field(:auto_renew?, Ecto.Enum, values: [true: 1, false: 0], source: :HasAutorenew)
+    field(:dns_sec?, Ecto.Enum, values: [true: 1, false: 0], source: :HasDnsSec)
+    field(:epp_code?, Ecto.Enum, values: [true: 1, false: 0], source: :HasEppCode)
 
     field(:has_immediate_delete?, Ecto.Enum,
       values: [true: 1, false: 0],
@@ -60,9 +60,9 @@ defmodule Netim.Tld do
       source: :HasTrusteeService
     )
 
-    field(:has_whois_privacy?, Ecto.Enum, values: [true: 1, false: 0], source: :HasWhoisPrivacy)
-    field(:has_zonecheck?, Ecto.Enum, values: [true: 1, false: 0], source: :HasZonecheck)
-    field(:informations, :string, source: :Informations)
+    field(:whois_privacy?, Ecto.Enum, values: [true: 1, false: 0], source: :HasWhoisPrivacy)
+    field(:zone_check?, Ecto.Enum, values: [true: 1, false: 0], source: :HasZonecheck)
+    field(:information, :string, source: :Informations)
     field(:period_create, Range, source: :PeriodCreate)
     field(:period_renew, Range, source: :PeriodRenew)
   end
