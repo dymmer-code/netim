@@ -31,7 +31,7 @@ defmodule Netim.Tld do
     embeds_many(:extension, Extension, source: :Extensions)
 
     field(:local_contact_service_fee, :decimal, source: :Fee4LocalContactService)
-    field(:registration_free, :decimal, source: :Fee4Registration)
+    field(:registration_fee, :decimal, source: :Fee4Registration)
     field(:renewal_fee, :decimal, source: :Fee4Renewal)
     field(:restore_fee, :decimal, source: :Fee4Restore)
     field(:trade_fee, :decimal, source: :Fee4Trade)
