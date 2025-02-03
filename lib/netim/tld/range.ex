@@ -50,8 +50,7 @@ defmodule Netim.Tld.Range do
     data
     |> Enum.sort()
     |> Enum.uniq()
-    |> Enum.map(&to_string/1)
-    |> Enum.join(":")
+    |> Enum.map_join(":", &to_string/1)
     |> then(&{:ok, &1})
   end
 end

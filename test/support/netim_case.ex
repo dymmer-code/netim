@@ -2,8 +2,8 @@ defmodule Netim.Case do
   @moduledoc """
   Simulate the Netim system for create sessions and attend requests.
   """
-  alias Proximal.Xmlel
   alias Netim.Soap, as: NetimSoap
+  alias Proximal.Xmlel
 
   def netim_setup(_args) do
     bypass = Bypass.open()
