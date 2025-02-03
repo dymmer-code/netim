@@ -14,13 +14,31 @@ defmodule Netim.Tld.Range do
   def cast(nil), do: nil
 
   def cast(numbers) when is_binary(numbers) do
-    with [n1, n2] <- String.split(numbers, "-", parts: 2),
-         {first, ""} <- Integer.parse(n1),
-         {last, ""} <- Integer.parse(n2),
-         true <- first <= last do
-      {:ok, Range.new(first, last)}
+    results =
+      String.split(numbers, [";", ":"])
+      |> Enum.flat_map(fn block ->
+        only_one_number = Integer.parse(block)
+        nums = String.split(block, "-", parts: 2)
+
+        cond do
+          match?({_, ""}, only_one_number) ->
+            [elem(only_one_number, 0)]
+
+          match?([_, _], nums) ->
+            [n1, n2] = nums
+            n1 = String.to_integer(n1)
+            n2 = String.to_integer(n2)
+            Enum.to_list(Range.new(n1, n2))
+
+          :else ->
+            :error
+        end
+      end)
+
+    if Enum.any?(results, &is_atom/1) do
+      :error
     else
-      _ -> :error
+      {:ok, Enum.uniq(results)}
     end
   end
 
@@ -28,5 +46,12 @@ defmodule Netim.Tld.Range do
   def load(data), do: cast(data)
 
   @doc false
-  def dump(data) when is_struct(data, Range), do: {:ok, "#{data.first}-#{data.last}"}
+  def dump(data) when is_list(data) do
+    data
+    |> Enum.sort()
+    |> Enum.uniq()
+    |> Enum.map(&to_string/1)
+    |> Enum.join(":")
+    |> then(&{:ok, &1})
+  end
 end
