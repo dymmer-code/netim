@@ -11,6 +11,7 @@ defmodule Netim.Tld do
   alias Netim.Soap, as: NetimSoap
   alias Netim.Tld.Extension
   alias Netim.Tld.Price
+  alias Netim.Tld.PriceCache
   alias Netim.Tld.Range
 
   @primary_key false
@@ -112,4 +113,9 @@ defmodule Netim.Tld do
         nil
     end
   end
+
+  @doc """
+  Get the prices given the TLD.
+  """
+  defdelegate get_prices_by_tld(tld), to: PriceCache
 end

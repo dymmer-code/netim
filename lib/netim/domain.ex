@@ -1,6 +1,6 @@
 defmodule Netim.Domain do
   @moduledoc """
-  Domain functions and operations for checking, buying, and transfering.
+  Domain functions and operations for checking, buying, and transferring.
   """
   use TypedEctoSchema
 
@@ -217,7 +217,7 @@ defmodule Netim.Domain do
   @doc """
   Create a domain. It register the domain if that's possible.
 
-  It's possible to use a preconfigured tempalte for DNS therefore,
+  It's possible to use a preconfigured template for DNS therefore,
   it let us to provide an empty list for `ns`.
   """
   @spec create(String.t(), [String.t()], [String.t()], pos_integer()) ::
@@ -334,7 +334,7 @@ defmodule Netim.Domain do
   end
 
   @doc """
-  Lock domain for avoiding tranfer to another domain.
+  Lock domain for avoiding transfer to another domain.
   """
   def lock(domain) do
     set_preference(domain, "registrar_lock", "1")
@@ -370,7 +370,7 @@ defmodule Netim.Domain do
   @doc """
   List all of the domains.
 
-  We can provide optionally a paramter for the criteria.
+  We can provide optionally a parameter for the criteria.
   For the `filter` you can use `*` (wildcard), i.e. `*.com`
   """
   @spec list() :: [DomainList.t()]
@@ -400,7 +400,7 @@ defmodule Netim.Domain do
   Get the price of a specific domain. It is useful because the domain
   could be in grace period or it could be a premium domain.
 
-  In some circunstances the provider could require us to ask the price passing
+  In some circumstances the provider could require us to ask the price passing
   first the auth ID, it could be needed for a domain that's going to be
   transferred.
   """
