@@ -453,6 +453,34 @@ defmodule Netim.Domain do
     |> return_or_fault()
   end
 
+  @doc """
+  Change DNS or nameservers.
+  """
+  @spec change_dns(String.t(), [String.t()]) :: Operation.t() | Fault.t()
+  @spec change_dns(String.t() | nil, String.t(), [String.t()]) :: Operation.t() | Fault.t()
+  def change_dns(id_session \\ nil, domain, nameservers)
+
+  def change_dns(nil, domain, nameservers) do
+    Session.transaction(&change_dns(&1, domain, nameservers))
+  end
+
+  def change_dns(_id_session, _domain, ns) when length(ns) < 2, do: {:error, :ns}
+
+  def change_dns(id_session, domain, ns) when length(ns) > 5 do
+    change_dns(id_session, domain, Enum.slice(ns, 0..4))
+  end
+
+  def change_dns(id_session, domain, ns) when length(ns) in 0..4 do
+    change_dns(id_session, domain, ns ++ List.duplicate(nil, 5 - length(ns)))
+  end
+
+  def change_dns(id_session, domain, nameservers) do
+    "domainChangeDNS"
+    |> NetimSoap.base([id_session, domain | nameservers])
+    |> NetimSoap.request()
+    |> return_or_fault()
+  end
+
   defp return_or_fault({:ok, %{"return" => operation}}) do
     Ecto.embedded_load(Operation, operation, :json)
   end
