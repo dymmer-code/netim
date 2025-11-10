@@ -27,7 +27,7 @@ defmodule Netim.Tld do
     field(:country, :string, source: :Country)
     field(:delay_renew_after_expiration, :integer, source: :DelaiRenewAfterExpiration)
     field(:delay_renew_before_expiration, :integer, source: :DelaiRenewBeforeExpiration)
-    field(:delay_renew_after_delete, :integer, source: :DelaiRenewAfterDelete)
+    field(:delay_restore_after_delete, :integer, source: :DelaiRestoreAfterDelete)
 
     embeds_many(:extension, Extension, source: :Extensions)
 
