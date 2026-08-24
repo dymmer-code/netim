@@ -40,6 +40,9 @@ defmodule Netim.Reseller do
 
   @doc """
   Retrieve the reseller settings.
+
+  ### See also
+  * [Netim SOAP `queryResellerAccount`](https://support.netim.com/en/wiki/queryreselleraccount/)
   """
   def get_settings do
     Session.transaction(&get_settings/1)

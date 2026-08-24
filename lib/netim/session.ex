@@ -17,6 +17,9 @@ defmodule Netim.Session do
   password and the language you want to use.
 
   The language by default is `"EN"` and we can only use that and `"FR"`.
+
+  ### See also
+  * [Netim SOAP `sessionOpen`](https://support.netim.com/en/wiki/sessionopen/)
   """
   @spec open(reseller_id()) :: session_id() | nil
   @spec open(reseller_id(), password()) :: session_id() | nil
@@ -41,6 +44,9 @@ defmodule Netim.Session do
   @doc """
   Close an opened session. If the session doesn't exist it will return us
   an error.
+
+  ### See also
+  * [Netim SOAP `sessionClose`](https://support.netim.com/en/wiki/sessionclose/)
   """
   @spec close(session_id()) :: :ok | {:error, any()}
   def close(id_session) do
@@ -59,6 +65,9 @@ defmodule Netim.Session do
 
   @doc """
   Information about the session.
+
+  ### See also
+  * [Netim SOAP `sessionInfo`](https://support.netim.com/en/wiki/sessioninfo/)
   """
   @spec info(session_id()) :: Info.t() | nil
   def info(id_session) do
@@ -81,6 +90,9 @@ defmodule Netim.Session do
 
   While synchronisation activated is giving us the final result, it's a risk
   because the operation could take longer than expected and provoke a timeout.
+
+  ### See also
+  * [Netim SOAP `sessionSetPreference`](https://support.netim.com/en/wiki/sessionsetpreference/)
   """
   @spec set_sync(session_id(), boolean()) :: :ok | {:error, any()}
   def set_sync(id_session, true), do: set_preference(id_session, "sync", "1")
@@ -88,6 +100,9 @@ defmodule Netim.Session do
 
   @doc """
   Set the language for the session. We can choose only between `:en` and `:fr`.
+
+  ### See also
+  * [Netim SOAP `sessionSetPreference`](https://support.netim.com/en/wiki/sessionsetpreference/)
   """
   @spec set_lang(session_id(), Info.languages()) :: :ok | {:error, any()}
   def set_lang(id_session, :en), do: set_preference(id_session, "lang", "EN")
@@ -109,6 +124,9 @@ defmodule Netim.Session do
 
   @doc """
   Get all of the opened sessions.
+
+  ### See also
+  * [Netim SOAP `queryAllSessions`](https://support.netim.com/en/wiki/queryallsessions/)
   """
   @spec get_all_sessions(session_id()) :: [Info.t()] | nil
   def get_all_sessions(id_session) do

@@ -93,12 +93,18 @@ defmodule Netim.Operation do
 
   @doc """
   Get information about an operation given the operation ID.
+
+  ### See also
+  * [Netim SOAP `queryOpe`](https://support.netim.com/en/wiki/queryope/)
   """
   def info(id_operation), do: Session.transaction(&info(&1, id_operation))
 
   @doc """
   Same as `info/1` but adding the session ID. Check `Netim.Session`
   for further information.
+
+  ### See also
+  * [Netim SOAP `queryOpe`](https://support.netim.com/en/wiki/queryope/)
   """
   def info(id_session, id_operation) do
     "queryOpe"
@@ -111,12 +117,18 @@ defmodule Netim.Operation do
   List all of the operations performed by TLD. These are the operations
   performed only for domains, operations regarding contacts and other
   operations are out of this scope.
+
+  ### See also
+  * [Netim SOAP `queryOpeList`](https://support.netim.com/en/wiki/queryopelist/)
   """
   def list(tld), do: Session.transaction(&list(&1, tld))
 
   @doc """
   Same as `list/1` but adding the session ID. Check `Netim.Session`
   for further information.
+
+  ### See also
+  * [Netim SOAP `queryOpeList`](https://support.netim.com/en/wiki/queryopelist/)
   """
   def list(id_session, tld) do
     "queryOpeList"
@@ -136,12 +148,18 @@ defmodule Netim.Operation do
   @doc """
   List all of the pending operations. These operations could be regarding
   whatever topic.
+
+  ### See also
+  * [Netim SOAP `queryOpePending`](https://support.netim.com/en/wiki/queryopepending/)
   """
   def list_pending, do: Session.transaction(&list_pending/1)
 
   @doc """
   Same as `list_pending/1` but adding the session ID. Check `Netim.Session`
   for further information.
+
+  ### See also
+  * [Netim SOAP `queryOpePending`](https://support.netim.com/en/wiki/queryopepending/)
   """
   def list_pending(id_session) do
     "queryOpePending"

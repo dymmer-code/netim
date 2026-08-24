@@ -180,6 +180,9 @@ defmodule Netim.Contact do
 
   @doc """
   List the contacts.
+
+  ### See also
+  * [Netim SOAP `queryContactList`](https://support.netim.com/en/wiki/querycontactlist/)
   """
   def list(field, filter) do
     Session.transaction(&list(&1, field, filter))
@@ -200,6 +203,9 @@ defmodule Netim.Contact do
 
   @doc """
   Retrieve the information of the contact given the contact ID.
+
+  ### See also
+  * [Netim SOAP `contactInfo`](https://support.netim.com/en/wiki/contactinfo/)
   """
   @spec info(String.t()) :: t() | nil
   def info(contact), do: Session.transaction(&info(&1, contact))
@@ -207,6 +213,9 @@ defmodule Netim.Contact do
   @doc """
   Retrieve the information of the contact given an opened session ID
   and a valid contact ID.
+
+  ### See also
+  * [Netim SOAP `contactInfo`](https://support.netim.com/en/wiki/contactinfo/)
   """
   @spec info(String.t(), String.t()) :: t() | nil
   def info(id_session, contact_id) do
@@ -228,6 +237,9 @@ defmodule Netim.Contact do
   @doc """
   Create a contact given a list of attributes or a map with the attributes.
   The required attributes could be consulted on the type `t/0`.
+
+  ### See also
+  * [Netim SOAP `contactCreate`](https://support.netim.com/en/wiki/contactcreate/)
   """
   def create(data) when is_list(data) do
     create(Map.new(data))
@@ -241,6 +253,9 @@ defmodule Netim.Contact do
   Create a contact given a list of attributes or a map with the attributes.
   The required attributes could be consulted on the type `t/0`. In addition,
   it requires a session ID.
+
+  ### See also
+  * [Netim SOAP `contactCreate`](https://support.netim.com/en/wiki/contactcreate/)
   """
   @spec create(String.t(), [any()] | map()) :: {:ok, String.t()} | {:error, any()}
   def create(id_session, params) do
@@ -258,6 +273,10 @@ defmodule Netim.Contact do
   @doc """
   Update an existent contact given the list of attributes in a list or map
   based data. The first paramter should be a contact struct.
+
+  ### See also
+  * [Netim SOAP `contactUpdate`](https://support.netim.com/en/wiki/contactupdate/)
+  * [Netim SOAP `contactOwnerUpdate`](https://support.netim.com/en/wiki/contactownerupdate/)
   """
   def update(contact, data) when is_list(data) do
     update(contact, Map.new(data))
@@ -271,6 +290,10 @@ defmodule Netim.Contact do
   Update an existent contact given the list of attributes in a list or map
   based data. The first paramter should be a contact struct. In addition,
   it requires a session ID.
+
+  ### See also
+  * [Netim SOAP `contactUpdate`](https://support.netim.com/en/wiki/contactupdate/)
+  * [Netim SOAP `contactOwnerUpdate`](https://support.netim.com/en/wiki/contactownerupdate/)
   """
   def update(id_session, contact, params) do
     with {:ok, data} <- changeset(contact, params) do
@@ -293,6 +316,9 @@ defmodule Netim.Contact do
 
   @doc """
   Delete a contact given the contact ID.
+
+  ### See also
+  * [Netim SOAP `contactDelete`](https://support.netim.com/en/wiki/contactdelete/)
   """
   def delete(contact_id) do
     Session.transaction(&delete(&1, contact_id))
@@ -300,6 +326,9 @@ defmodule Netim.Contact do
 
   @doc """
   Delete a contact given the contact ID and the opened session ID.
+
+  ### See also
+  * [Netim SOAP `contactDelete`](https://support.netim.com/en/wiki/contactdelete/)
   """
   def delete(id_session, contact_id) do
     "contactDelete"

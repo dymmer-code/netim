@@ -70,12 +70,18 @@ defmodule Netim.Tld do
 
   @doc """
   Retrieve information about the TLD.
+
+  ### See also
+  * [Netim SOAP `domainTldInfo`](https://support.netim.com/en/wiki/domaintldinfo/)
   """
   def info(tld), do: Session.transaction(&info(&1, tld))
 
   @doc """
   Same as `info/1` but adding the session ID. Check `Netim.Session`
   for further information.
+
+  ### See also
+  * [Netim SOAP `domainTldInfo`](https://support.netim.com/en/wiki/domaintldinfo/)
   """
   def info(id_session, tld) do
     "domainTldInfo"
@@ -93,12 +99,18 @@ defmodule Netim.Tld do
 
   @doc """
   Get the list of prices.
+
+  ### See also
+  * [Netim SOAP `domainPriceList`](https://support.netim.com/en/wiki/domainpricelist/)
   """
   def price_list, do: Session.transaction(&price_list/1)
 
   @doc """
   Same as `price_list/1` but adding the session ID. Check `Netim.Session`
   for further information.
+
+  ### See also
+  * [Netim SOAP `domainPriceList`](https://support.netim.com/en/wiki/domainpricelist/)
   """
   def price_list(id_session) do
     "domainPriceList"

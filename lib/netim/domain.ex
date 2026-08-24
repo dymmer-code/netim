@@ -111,6 +111,9 @@ defmodule Netim.Domain do
 
   @doc """
   Get the info for a specified domain.
+
+  ### See also
+  * [Netim SOAP `domainInfo`](https://support.netim.com/en/wiki/domaininfo/)
   """
   @spec info(String.t()) :: t() | nil
   def info(domain), do: Session.transaction(&info(&1, domain))
@@ -118,6 +121,9 @@ defmodule Netim.Domain do
   @doc """
   Same as `info/1` but adding the session ID. Check `Netim.Session`
   for further information.
+
+  ### See also
+  * [Netim SOAP `domainInfo`](https://support.netim.com/en/wiki/domaininfo/)
   """
   @spec info(String.t(), String.t()) :: t() | nil
   def info(id_session, domain) do
@@ -138,6 +144,9 @@ defmodule Netim.Domain do
   Check domain given the name. It gives us information about if we can
   buy the domain and other information depending on the TLD and the
   domain.
+
+  ### See also
+  * [Netim SOAP `domainCheck`](https://support.netim.com/en/wiki/domaincheck/)
   """
   @spec check(String.t()) :: DomainCheck.t() | Fault.t()
   def check(domain), do: Session.transaction(&check(&1, domain))
@@ -145,6 +154,9 @@ defmodule Netim.Domain do
   @doc """
   Same as `check/1` but adding the session ID. Check `Netim.Session`
   for further information.
+
+  ### See also
+  * [Netim SOAP `domainCheck`](https://support.netim.com/en/wiki/domaincheck/)
   """
   def check(id_session, domain) do
     "domainCheck"
@@ -163,6 +175,9 @@ defmodule Netim.Domain do
 
   @doc """
   Tell us if there's a claim on the domain name or not.
+
+  ### See also
+  * [Netim SOAP `queryDomainClaim`](https://support.netim.com/en/wiki/querydomainclaim/)
   """
   @spec claim?(String.t()) :: boolean() | nil
   def claim?(domain), do: Session.transaction(&claim?(&1, domain))
@@ -170,6 +185,9 @@ defmodule Netim.Domain do
   @doc """
   Same as `claim?/1` but adding the session ID. Check `Netim.Session`
   for further information.
+
+  ### See also
+  * [Netim SOAP `queryDomainClaim`](https://support.netim.com/en/wiki/querydomainclaim/)
   """
   @spec claim?(String.t(), String.t()) :: boolean() | nil
   def claim?(id_session, domain) do
@@ -191,6 +209,9 @@ defmodule Netim.Domain do
 
   @doc """
   Retrieve the WHOIS information for the specified domain.
+
+  ### See also
+  * [Netim SOAP `domainWhois`](https://support.netim.com/en/wiki/domainwhois/)
   """
   @spec whois(String.t()) :: String.t() | nil
   def whois(domain), do: Session.transaction(&whois(&1, domain))
@@ -198,6 +219,9 @@ defmodule Netim.Domain do
   @doc """
   Same as `whois/1` but adding the session ID. Check `Netim.Session`
   for further information.
+
+  ### See also
+  * [Netim SOAP `domainWhois`](https://support.netim.com/en/wiki/domainwhois/)
   """
   @spec whois(String.t(), String.t()) :: String.t() | nil
   def whois(id_session, domain) do
@@ -219,6 +243,9 @@ defmodule Netim.Domain do
 
   It's possible to use a preconfigured template for DNS therefore,
   it let us to provide an empty list for `ns`.
+
+  ### See also
+  * [Netim SOAP `domainCreate`](https://support.netim.com/en/wiki/domaincreate/)
   """
   @spec create(String.t(), [String.t()], [String.t()], pos_integer()) ::
           Operation.t() | nil
@@ -232,6 +259,9 @@ defmodule Netim.Domain do
   @doc """
   Same as `create/5` but adding the session ID. Check `Netim.Session`
   for further information.
+
+  ### See also
+  * [Netim SOAP `domainCreate`](https://support.netim.com/en/wiki/domaincreate/)
   """
   def create(_id_session, _domain, contacts, _ns, _duration, _template_dns)
       when not is_list(contacts) or length(contacts) != 4 do
@@ -261,6 +291,9 @@ defmodule Netim.Domain do
 
   @doc """
   Transfer your domain from another provider to Netim.
+
+  ### See also
+  * [Netim SOAP `domainTransferIn`](https://support.netim.com/en/wiki/domaintransferin/)
   """
   def transfer_in(domain, auth_id, contacts, ns) do
     Session.transaction(&transfer_in(&1, domain, auth_id, contacts, ns))
@@ -269,6 +302,9 @@ defmodule Netim.Domain do
   @doc """
   Same as `transfer_in/4` but adding the session ID. Check `Netim.Session`
   for further information.
+
+  ### See also
+  * [Netim SOAP `domainTransferIn`](https://support.netim.com/en/wiki/domaintransferin/)
   """
   def transfer_in(id_session, domain, auth_id, contacts, ns) do
     "domainTransferIn"
@@ -280,6 +316,9 @@ defmodule Netim.Domain do
   @doc """
   Perform an internal transfer to move the domain from another reseller of
   Netim to our reseller account.
+
+  ### See also
+  * [Netim SOAP `domainInternalTransfer`](https://support.netim.com/en/wiki/domaininternaltransfer/)
   """
   def internal_transfer(domain, auth_id, contacts, ns) do
     Session.transaction(&internal_transfer(&1, domain, auth_id, contacts, ns))
@@ -288,6 +327,9 @@ defmodule Netim.Domain do
   @doc """
   Same as `internal_transfer/4` but adding the session ID. Check `Netim.Session`
   for further information.
+
+  ### See also
+  * [Netim SOAP `domainInternalTransfer`](https://support.netim.com/en/wiki/domaininternaltransfer/)
   """
   def internal_transfer(id_session, domain, auth_id, contacts, ns) do
     "domainInternalTransfer"
@@ -299,6 +341,9 @@ defmodule Netim.Domain do
   @doc """
   Renew the domain passed as first parameter for the indicated duration
   in years.
+
+  ### See also
+  * [Netim SOAP `domainRenew`](https://support.netim.com/en/wiki/domainrenew/)
   """
   def renew(domain, duration) do
     Session.transaction(&renew(&1, domain, duration))
@@ -307,6 +352,9 @@ defmodule Netim.Domain do
   @doc """
   Same as `renew/2` but adding the session ID. Check `Netim.Session` for
   further information.
+
+  ### See also
+  * [Netim SOAP `domainRenew`](https://support.netim.com/en/wiki/domainrenew/)
   """
   def renew(id_session, domain, duration) do
     "domainRenew"
@@ -317,6 +365,9 @@ defmodule Netim.Domain do
 
   @doc """
   Restore a domain name in quarantine / redemption status
+
+  ### See also
+  * [Netim SOAP `domainRestore`](https://support.netim.com/en/wiki/domainrestore/)
   """
   def restore(domain) do
     Session.transaction(&restore(&1, domain))
@@ -325,6 +376,9 @@ defmodule Netim.Domain do
   @doc """
   Same as `restore/1` but adding the session ID. Check `Netim.Session`
   for further information.
+
+  ### See also
+  * [Netim SOAP `domainRestore`](https://support.netim.com/en/wiki/domainrestore/)
   """
   def restore(id_session, domain) do
     "domainRestore"
@@ -335,6 +389,9 @@ defmodule Netim.Domain do
 
   @doc """
   Lock domain for avoiding transfer to another domain.
+
+  ### See also
+  * [Netim SOAP `domainSetPreference`](https://support.netim.com/en/wiki/domainsetpreference/)
   """
   def lock(domain) do
     set_preference(domain, "registrar_lock", "1")
@@ -342,6 +399,9 @@ defmodule Netim.Domain do
 
   @doc """
   Unlock domain for transfer it to another domain.
+
+  ### See also
+  * [Netim SOAP `domainSetPreference`](https://support.netim.com/en/wiki/domainsetpreference/)
   """
   def unlock(domain) do
     set_preference(domain, "registrar_lock", "0")
@@ -355,6 +415,9 @@ defmodule Netim.Domain do
   - `tag`
   - `to_be_renewed`
   - `whois_privacy`
+
+  ### See also
+  * [Netim SOAP `domainSetPreference`](https://support.netim.com/en/wiki/domainsetpreference/)
   """
   def set_preference(domain, key, value) do
     Session.transaction(&set_preference(&1, domain, key, value))
@@ -372,6 +435,9 @@ defmodule Netim.Domain do
 
   We can provide optionally a parameter for the criteria.
   For the `filter` you can use `*` (wildcard), i.e. `*.com`
+
+  ### See also
+  * [Netim SOAP `queryDomainList`](https://support.netim.com/en/wiki/querydomainlist/)
   """
   @spec list() :: [DomainList.t()]
   @spec list(String.t() | nil) :: [DomainList.t()]
@@ -380,6 +446,9 @@ defmodule Netim.Domain do
   @doc """
   Same as `list/1` but adding the session ID. Check `Netim.Session`
   for further information.
+
+  ### See also
+  * [Netim SOAP `queryDomainList`](https://support.netim.com/en/wiki/querydomainlist/)
   """
   @spec list(String.t(), String.t() | nil) :: [DomainList.t()]
   def list(id_session, filter) do
@@ -403,6 +472,9 @@ defmodule Netim.Domain do
   In some circumstances the provider could require us to ask the price passing
   first the auth ID, it could be needed for a domain that's going to be
   transferred.
+
+  ### See also
+  * [Netim SOAP `queryDomainPrice`](https://support.netim.com/en/wiki/querydomainprice/)
   """
   @spec price(String.t()) :: DomainPrice.t()
   @spec price(String.t(), String.t() | nil) :: DomainPrice.t()
@@ -411,6 +483,9 @@ defmodule Netim.Domain do
   @doc """
   Same as `price/2` but adding the session ID. Check `Netim.Session`
   for further information.
+
+  ### See also
+  * [Netim SOAP `queryDomainPrice`](https://support.netim.com/en/wiki/querydomainprice/)
   """
   @spec price(String.t(), String.t(), String.t() | nil) :: DomainPrice.t()
   def price(id_session, domain, auth_id) do
@@ -436,6 +511,9 @@ defmodule Netim.Domain do
   The third parameter is giving us the possibility of when we are going to
   perform the removing of the domain. By default, and at this moment only
   it's possible to indicate `"NOW"`.
+
+  ### See also
+  * [Netim SOAP `domainDelete`](https://support.netim.com/en/wiki/domaindelete/)
   """
   @spec delete(String.t()) :: Operation.t() | Fault.t()
   @spec delete(String.t() | nil, String.t()) :: Operation.t() | Fault.t()
@@ -455,6 +533,9 @@ defmodule Netim.Domain do
 
   @doc """
   Change DNS or nameservers.
+
+  ### See also
+  * [Netim SOAP `domainChangeDNS`](https://support.netim.com/en/wiki/domainchangedns/)
   """
   @spec change_dns(String.t(), [String.t()]) :: Operation.t() | Fault.t()
   @spec change_dns(String.t() | nil, String.t(), [String.t()]) :: Operation.t() | Fault.t()
