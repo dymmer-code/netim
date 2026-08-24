@@ -6,8 +6,8 @@ defmodule Netim.SessionTest do
   @password "secret"
 
   test "open a session", %{bypass: bypass} do
-    Bypass.expect_once(bypass, "POST", "/2.0/", fn conn ->
-      assert ["sessionOpen"] = Plug.Conn.get_req_header(conn, "soapaction")
+    Passby.expect_once(bypass, "POST", "/2.0/", fn conn ->
+      assert ["sessionOpen"] = Passby.get_req_header(conn, "soapaction")
       response(conn, "sessionOpenResponse", [{"IDSession", @session_id}])
     end)
 
@@ -15,8 +15,8 @@ defmodule Netim.SessionTest do
   end
 
   test "open a session with wrong credentials", %{bypass: bypass} do
-    Bypass.expect_once(bypass, "POST", "/2.0/", fn conn ->
-      assert ["sessionOpen"] = Plug.Conn.get_req_header(conn, "soapaction")
+    Passby.expect_once(bypass, "POST", "/2.0/", fn conn ->
+      assert ["sessionOpen"] = Passby.get_req_header(conn, "soapaction")
       #  combinaison is french, I know, but it's copied from the real response
       response(conn, :error, "E01-M0101", "Unable to connect - Bad login / password combinaison")
     end)
@@ -26,19 +26,27 @@ defmodule Netim.SessionTest do
   end
 
   test "close a session", %{bypass: bypass} do
-    Bypass.expect_once(bypass, "POST", "/2.0/", fn conn ->
-      assert ["sessionClose"] = Plug.Conn.get_req_header(conn, "soapaction")
+    Passby.expect_once(bypass, "POST", "/2.0/", fn conn ->
+      assert ["sessionClose"] = Passby.get_req_header(conn, "soapaction")
       response(conn, "sessionCloseResponse")
     end)
 
     assert :ok == Netim.Session.close(@session_id)
   end
 
+  test "close a session with error", %{bypass: bypass} do
+    Passby.expect_once(bypass, "POST", "/2.0/", fn conn ->
+      response(conn, :error, "E01-M0101", "Session not found")
+    end)
+
+    assert {:error, _} = Netim.Session.close(@session_id)
+  end
+
   test "open/close session using transaction", %{bypass: bypass} do
     parent = self()
 
-    Bypass.expect(bypass, "POST", "/2.0/", fn conn ->
-      case Plug.Conn.get_req_header(conn, "soapaction") do
+    Passby.expect(bypass, "POST", "/2.0/", fn conn ->
+      case Passby.get_req_header(conn, "soapaction") do
         ["sessionOpen"] ->
           response(conn, "sessionOpenResponse", [{"IDSession", @session_id}])
 
@@ -54,8 +62,8 @@ defmodule Netim.SessionTest do
   end
 
   test "info session", %{bypass: bypass} do
-    Bypass.expect(bypass, "POST", "/2.0/", fn conn ->
-      case Plug.Conn.get_req_header(conn, "soapaction") do
+    Passby.expect(bypass, "POST", "/2.0/", fn conn ->
+      case Passby.get_req_header(conn, "soapaction") do
         ["sessionInfo"] ->
           response(conn, "sessionInfoResponse", [
             {"return",
@@ -79,9 +87,28 @@ defmodule Netim.SessionTest do
            } == Netim.Session.info(@session_id)
   end
 
+  test "info session error", %{bypass: bypass} do
+    Passby.expect(bypass, "POST", "/2.0/", fn conn ->
+      response(conn, :error, "E01-M0101", "Error")
+    end)
+
+    assert is_nil(Netim.Session.info(@session_id))
+  end
+
+  test "set_sync and set_lang preferences", %{bypass: bypass} do
+    Passby.expect(bypass, "POST", "/2.0/", fn conn ->
+      response(conn, "sessionSetPreferenceResponse")
+    end)
+
+    assert :ok == Netim.Session.set_sync(@session_id, true)
+    assert :ok == Netim.Session.set_sync(@session_id, false)
+    assert :ok == Netim.Session.set_lang(@session_id, :en)
+    assert :ok == Netim.Session.set_lang(@session_id, :fr)
+  end
+
   test "list active sessions", %{bypass: bypass} do
-    Bypass.expect(bypass, "POST", "/2.0/", fn conn ->
-      case Plug.Conn.get_req_header(conn, "soapaction") do
+    Passby.expect(bypass, "POST", "/2.0/", fn conn ->
+      case Passby.get_req_header(conn, "soapaction") do
         ["queryAllSessions"] ->
           response(conn, "queryAllSessionsResponse", [
             {"return",

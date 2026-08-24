@@ -4,8 +4,8 @@ defmodule Netim.TldTest do
   @session_id "123456789012345678901234567890ab"
 
   test "get info", %{bypass: bypass} do
-    Bypass.expect(bypass, "POST", "/2.0/", fn conn ->
-      case Plug.Conn.get_req_header(conn, "soapaction") do
+    Passby.expect(bypass, "POST", "/2.0/", fn conn ->
+      case Passby.get_req_header(conn, "soapaction") do
         ["domainTldInfo"] ->
           response(conn, "domainTldInfo", [
             {"return",
@@ -50,6 +50,12 @@ defmodule Netim.TldTest do
                {"Informations", ""}
              ]}
           ])
+
+        ["sessionOpen"] ->
+          response(conn, "sessionOpenResponse", [{"IDSession", @session_id}])
+
+        ["sessionClose"] ->
+          response(conn, "sessionCloseResponse")
       end
     end)
 
@@ -85,6 +91,68 @@ defmodule Netim.TldTest do
              information: "",
              period_create: [1],
              period_renew: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-           } == Netim.Tld.info(@session_id, "eu")
+           } == Netim.Tld.info("eu")
+  end
+
+  test "info handles error", %{bypass: bypass} do
+    Passby.expect(bypass, "POST", "/2.0/", fn conn ->
+      response(conn, :error, "E01-M0101", "TLD not found")
+    end)
+
+    assert is_nil(Netim.Tld.info(@session_id, "invalid"))
+  end
+
+  test "price_list retrieves price list", %{bypass: bypass} do
+    Passby.expect(bypass, "POST", "/2.0/", fn conn ->
+      case Passby.get_req_header(conn, "soapaction") do
+        ["domainPriceList"] ->
+          response(conn, "domainPriceListResponse", [
+            {"return",
+             [
+               [
+                 {"tld", "com"},
+                 {"FeeCurrency", "USD"},
+                 {"Fee4Registration", "10.00"},
+                 {"Fee4Renewal", "10.00"},
+                 {"Fee4Transfer", "10.00"},
+                 {"Fee4Restore", "40.00"},
+                 {"Fee4Trade", "0.00"},
+                 {"Fee4TrusteeService", "0.00"},
+                 {"Fee4LocalContactService", "0.00"},
+                 {"PeriodCreate", "1-10"},
+                 {"PeriodRenew", "1-10"}
+               ]
+             ]}
+          ])
+
+        ["sessionOpen"] ->
+          response(conn, "sessionOpenResponse", [{"IDSession", @session_id}])
+
+        ["sessionClose"] ->
+          response(conn, "sessionCloseResponse")
+      end
+    end)
+
+    assert [price] = Netim.Tld.price_list()
+    assert %Netim.Tld.Price{tld: "com"} = price
+    assert price.registration == Decimal.new("10.00")
+  end
+
+  test "price_list handles error", %{bypass: bypass} do
+    Passby.expect(bypass, "POST", "/2.0/", fn conn ->
+      response(conn, :error, "E01-M0101", "Error")
+    end)
+
+    assert is_nil(Netim.Tld.price_list(@session_id))
+  end
+
+  test "Range ecto type cast and dump" do
+    alias Netim.Tld.Range, as: TldRange
+    assert TldRange.type() == :string
+    assert is_nil(TldRange.cast(nil))
+    assert {:ok, [1, 2, 3]} = TldRange.cast("1-3")
+    assert {:ok, [1, 5, 10]} = TldRange.cast("1;5:10")
+    assert :error == TldRange.cast("invalid")
+    assert {:ok, "1:2:3"} = TldRange.dump([3, 1, 2])
   end
 end

@@ -6,7 +6,7 @@ defmodule Netim.Case do
   alias Proximal.Xmlel
 
   def netim_setup(_args) do
-    bypass = Bypass.open()
+    bypass = Passby.open()
     Application.put_env(:netim, :url, endpoint_url(bypass))
     {:ok, bypass: bypass}
   end
@@ -31,11 +31,11 @@ defmodule Netim.Case do
   end
 
   def response(conn, name, data \\ []) do
-    Plug.Conn.resp(conn, 200, envelope(name, data))
+    Passby.Conn.resp(conn, 200, envelope(name, data))
   end
 
   def response(conn, :error, code, string) do
-    Plug.Conn.resp(conn, 500, fault(code, string))
+    Passby.Conn.resp(conn, 500, fault(code, string))
   end
 
   def fault(code, string) do

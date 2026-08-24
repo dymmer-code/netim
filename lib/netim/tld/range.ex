@@ -31,7 +31,7 @@ defmodule Netim.Tld.Range do
             Enum.to_list(Range.new(n1, n2))
 
           :else ->
-            :error
+            [:error]
         end
       end)
 

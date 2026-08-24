@@ -1,14 +1,49 @@
 defmodule Netim.MixProject do
   use Mix.Project
 
+  @version "0.2.0"
+  @source_url "https://github.com/dymmer/netim"
+
   def project do
     [
       app: :netim,
-      version: "0.1.1",
+      version: @version,
       elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      dialyzer: dialyzer(),
+      package: package(),
+      docs: docs(),
+      preferred_cli_env: [
+        check: :test
+      ]
+    ]
+  end
+
+  defp dialyzer do
+    [
+      plt_local_path: ".plts",
+      plt_core_path: ".plts",
+      plt_add_apps: [:inets, :ssl, :public_key, :logger],
+      flags: [:error_handling, :unknown]
+    ]
+  end
+
+  defp package do
+    [
+      files: ~w(lib mix.exs README* COPYING* LICENSE* .formatter.exs),
+      licenses: ["MIT"],
+      links: %{"GitHub" => @source_url}
+    ]
+  end
+
+  defp docs do
+    [
+      main: "readme",
+      source_ref: "v#{@version}",
+      source_url: @source_url,
+      extras: ["README.md", "COPYING"]
     ]
   end
 
@@ -30,7 +65,7 @@ defmodule Netim.MixProject do
       {:typed_ecto_schema, "~> 0.4"},
       {:ecto, "~> 3.9"},
       {:whois, "~> 0.3"},
-      {:bypass, "~> 2.1", only: :test},
+      {:passby, "~> 0.1", only: :test},
 
       # only for dev
       {:dialyxir, ">= 0.0.0", only: [:dev, :test], runtime: false},

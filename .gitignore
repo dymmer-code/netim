@@ -27,3 +27,9 @@ netim-*.tar
 
 # Avoid include sensitive data in the repository
 /.envrc
+
+# ElixirLS & Dialyzer
+/.elixir_ls/
+.plts/
+*.plt
+*.plt.hash
