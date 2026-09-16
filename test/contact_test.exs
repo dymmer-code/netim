@@ -42,6 +42,23 @@ defmodule Netim.ContactTest do
       assert {:ok, _} = Netim.Contact.changeset(@valid_org_params)
     end
 
+    test "wraps `additional` as a Soap.ApacheMap so it serializes as ns2:Map, not flat tags" do
+      params =
+        Map.merge(@valid_org_params, %{additional: %{"ES_NIF" => "B85819159", "ES_TIPO" => "1"}})
+
+      assert {:ok, data} = Netim.Contact.changeset(params)
+
+      assert {"additional", %Soap.ApacheMap{value: additional}} =
+               List.keyfind(data, "additional", 0)
+
+      assert additional == %{"ES_NIF" => "B85819159", "ES_TIPO" => "1"}
+    end
+
+    test "an empty `additional` still wraps as an empty Soap.ApacheMap" do
+      assert {:ok, data} = Netim.Contact.changeset(@valid_individual_params)
+      assert {"additional", %Soap.ApacheMap{value: %{}}} = List.keyfind(data, "additional", 0)
+    end
+
     test "validates subdivisions for required countries like US" do
       invalid_us_params =
         Map.merge(@valid_individual_params, %{country: "US", area: "INVALID"})

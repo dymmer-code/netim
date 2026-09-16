@@ -112,9 +112,15 @@ defmodule Netim.Contact do
     |> validate_organization_data()
     |> case do
       changeset when changeset.valid? ->
-        changeset
-        |> apply_changes()
+        contact = apply_changes(changeset)
+        additional = %Soap.ApacheMap{value: Map.new(contact.additional || %{})}
+
+        # `Ecto.embedded_dump/2`'s shape for an untouched field is inconsistent, so normalize to a map first.
+        contact
         |> Ecto.embedded_dump(:json)
+        |> Map.new()
+        |> Map.drop([:additional, "additional"])
+        |> Map.put("additional", additional)
         |> to_arguments()
         |> then(&{:ok, &1})
 
@@ -174,9 +180,16 @@ defmodule Netim.Contact do
 
   defp to_arguments(arguments) when is_map(arguments) or is_list(arguments) do
     for {key, value} <- arguments do
-      {to_string(key), if(is_map(value) or is_list(value), do: to_arguments(value), else: value)}
+      {to_string(key), to_argument_value(value)}
     end
   end
+
+  # A struct (e.g. Soap.ApacheMap) is passed through untouched -- it's
+  # `Soap`'s job to encode it via the Soap.Argument protocol, not ours to
+  # flatten it like a plain nested map.
+  defp to_argument_value(%_{} = struct), do: struct
+  defp to_argument_value(value) when is_map(value) or is_list(value), do: to_arguments(value)
+  defp to_argument_value(value), do: value
 
   @doc """
   List the contacts.
