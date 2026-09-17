@@ -71,10 +71,6 @@ defmodule Netim.Tld.PriceCache do
   @impl GenServer
   @doc false
   def handle_call({:get_prices_by_tld, tld}, _from, state) do
-    if tld = Enum.find(state.prices, &(&1.tld == tld)) do
-      {:reply, tld, state}
-    else
-      {:reply, nil, state}
-    end
+    {:reply, Enum.find(state.prices, &(&1.tld == tld)), state}
   end
 end
